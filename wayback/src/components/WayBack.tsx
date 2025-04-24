@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-export default function WaybackByDate() {
+export default function WayBack() {
   const [url, setUrl] = useState('')
   const [snapshotUrl, setSnapshotUrl] = useState<string | null>(null)
   const [timestamp, setTimestamp] = useState({
@@ -15,8 +15,8 @@ export default function WaybackByDate() {
   const pad = (num: string, size = 2) => num.padStart(size, '0')
 
   const buildTimestamp = () => {
-    const { year, month, day, hour } = timestamp
-    return `${year}${pad(month)}${pad(day)}${pad(hour)}0000` 
+    const { year, month, day } = timestamp
+    return `${year}${pad(month)}${pad(day)}010000`
   }
 
   const fetchSnapshot = async () => {
@@ -25,70 +25,93 @@ export default function WaybackByDate() {
     const data = await res.json()
 
     const snap = data.archived_snapshots?.closest?.url
-    setSnapshotUrl(snap || 'No snapshot found')
+    setSnapshotUrl(snap || null)
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <input
         type="text"
-        placeholder="Enter URL (e.g. cnn.com)"
+        placeholder="Skriv inn URL (f.eks. vg.no)"
         className="border p-2 w-full"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
       />
 
-      <div className="flex gap-2">
+      <div className="flex gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Dag</label>
+          <input
+            type="number"
+            min="1"
+            max="31"
+            value={timestamp.day}
+            onChange={(e) => setTimestamp({ ...timestamp, day: e.target.value })}
+            className="border p-2 w-24"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Måned</label>
+          <input
+            type="number"
+            min="1"
+            max="12"
+            value={timestamp.month}
+            onChange={(e) => setTimestamp({ ...timestamp, month: e.target.value })}
+            className="border p-2 w-24"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">År</label>
+          <input
+            type="number"
+            value={timestamp.year}
+            onChange={(e) => setTimestamp({ ...timestamp, year: e.target.value })}
+            className="border p-2 w-28"
+          />
+        </div>
+      </div>
+
+      {/* <div>
+        <label className="block text-sm font-medium mb-1">Time (00–23)</label>
         <input
           type="number"
-          placeholder="Day"
-          min="1"
-          max="31"
-          value={timestamp.day}
-          onChange={(e) => setTimestamp({ ...timestamp, day: e.target.value })}
-          className="border p-2 w-20"
-        />
-        <input
-          type="number"
-          placeholder="Month"
-          min="1"
-          max="12"
-          value={timestamp.month}
-          onChange={(e) => setTimestamp({ ...timestamp, month: e.target.value })}
-          className="border p-2 w-20"
-        />
-        <input
-          type="number"
-          placeholder="Year"
-          value={timestamp.year}
-          onChange={(e) => setTimestamp({ ...timestamp, year: e.target.value })}
-          className="border p-2 w-24"
-        />
-        <input
-          type="number"
-          placeholder="Hour"
           min="0"
           max="23"
           value={timestamp.hour}
           onChange={(e) => setTimestamp({ ...timestamp, hour: e.target.value })}
-          className="border p-2 w-20"
+          className="border p-2 w-24"
         />
-      </div>
+      </div> */}
 
       <button onClick={fetchSnapshot} className="bg-blue-600 text-white px-4 py-2 rounded">
-        Find Snapshot
+        Finn arkivert side
       </button>
 
-      {snapshotUrl && (
-        <div className="mt-4">
-          <h2 className="text-lg font-semibold mb-2">Archived Snapshot</h2>
+      {snapshotUrl ? (
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold mb-2">Arkivert versjon</h2>
           <iframe
             src={snapshotUrl}
             title="Wayback Snapshot"
-            className="w-full h-[600px] border"
+            className="w-screen h-[600px] border"
           />
+          <div className="mt-4">
+            <a
+              href={snapshotUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
+              Åpne i ny fane
+            </a>
+          </div>
         </div>
-      )}  
+      ) : (
+        <div className="mt-6 text-red-500">
+          Beklager, ingen arkivert versjon funnet for denne datoen.
+        </div>
+      )}
     </div>
   )
 }
