@@ -94,7 +94,7 @@ export default function WayBack() {
           <iframe
             src={snapshotUrl}
             title="Wayback Snapshot"
-            className="w-screen h-[600px] border"
+            className="w-screen absolute mx-auto h-[600px] border"
           />
           <div className="mt-4">
             <a
