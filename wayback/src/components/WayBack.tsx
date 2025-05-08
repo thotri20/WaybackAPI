@@ -6,6 +6,8 @@ export default function WayBack() {
   const [url, setUrl] = useState('')
   const [snapshotUrl, setSnapshotUrl] = useState<string | null>(null)
   const [foundDate, setFoundDate] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [hasSearched, setHasSearched] = useState(false)
   const [timestamp, setTimestamp] = useState({
     year: '2020',
     month: '01',
@@ -29,6 +31,11 @@ export default function WayBack() {
   }
 
   const fetchClosestSnapshot = async () => {
+    setLoading(true)
+    setHasSearched(true)
+    setSnapshotUrl(null)
+    setFoundDate(null)
+
     const baseDate = buildDate()
     const maxOffset = 14 
 
@@ -53,13 +60,13 @@ export default function WayBack() {
             const hour = foundTs.slice(8, 10)
             setFoundDate(`${day}.${month}.${year} kl. ${hour}`)
           }
+          setLoading(false)
           return
         }
       }
     }
 
-    setSnapshotUrl(null)
-    setFoundDate(null)
+    setLoading(false)
   }
 
   return (
@@ -110,7 +117,14 @@ export default function WayBack() {
         </button>
       </div>
 
-      {snapshotUrl ? (
+      {loading && (
+        <div className="text-center mt-4">
+          <div className="animate-spin h-5 w-5 border-4 border-blue-600 border-t-transparent rounded-full inline-block mr-2"></div>
+          Laster arkiv...
+        </div>
+      )}
+
+      {!loading && snapshotUrl && (
         <div className="mt-6">
           <h2 className="text-lg font-semibold mb-2">
             Arkivert versjon {foundDate && `(nærmest valgt: ${foundDate})`}
@@ -131,7 +145,9 @@ export default function WayBack() {
             </a>
           </div>
         </div>
-      ) : (
+      )}
+
+      {!loading && hasSearched && !snapshotUrl && (
         <div className="mt-6 text-center text-red-500">
           Beklager, ingen arkivert versjon funnet for denne datoen eller nærliggende dager.
         </div>
